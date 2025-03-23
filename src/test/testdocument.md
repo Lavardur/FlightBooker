@@ -26,8 +26,6 @@
 
 ## Sufficiency of Test Coverage
 
-The test cases are sufficient because they cover:
-
 - **Complete CRUD operations:**
     - Create (register)
     - Read (get)
@@ -44,6 +42,8 @@ The test cases are sufficient because they cover:
 
 - **Verification of behavior:**
     - Each test validates both the functionality and the interaction pattern with dependencies.
+
+<div style="page-break-after: always;"></div>
 
 ## CustomerControllerTest
 
@@ -116,6 +116,7 @@ public class CustomerControllerTest {
     }
 }
 ```
+<div style="page-break-after: always;"></div>
 
 ## How the Mock Object Simulates Real Behavior
 
@@ -140,6 +141,8 @@ The MockCustomerDB simulates a real database by:
 - **Reset capabilities:**
     - Provides a `reset()` method to clear state between tests.
     - Ensures test isolation by removing interference between test cases.
+
+<div style="page-break-after: always;"></div>
 
 ## MockCustomerDB
 
@@ -230,6 +233,8 @@ public class MockCustomerDB extends CustomerDB {
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ## Customer Model
 ```java
 package hi.verkefni.vinnsla;
@@ -270,3 +275,10 @@ public class Customer {
     }
 }
 ```
+
+## Hópur 7F
+
+- **Mikael Sigurður Kristinsson** (msk14@hi.is)
+- **Anton Benediktsson** (anb59@hi.is)
+- **Valur Ingi Sigurðarson** (vis45@hi.is)
+- **Benedikt Arnar Davíðsson** (bad9@hi.is)
