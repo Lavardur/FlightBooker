@@ -4,8 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Mock implementation of CustomerDB for testing purposes.
- * This class simulates database operations without requiring an actual database.
+ * # Mock Object Documentation: MockCustomerDB
+ *
+ * ## Purpose
+ * The MockCustomerDB class serves as a test double that simulates a database component without requiring an actual database connection. 
+ * It implements the same interface as the real CustomerDB but stores data in memory and tracks method invocations for verification in tests.
+ *
+ * ## Implementation Details
+ * - Extends CustomerDB to maintain the same interface
+ * - Uses a HashMap to store customer data in memory
+ * - Maintains counters to track how many times each database operation is called
+ * - Provides additional methods for test verification (getInsertCalls, reset, etc.)
+ *
+ * ## Usage in Test Fixture
+ * The MockCustomerDB is initialized in the @BeforeEach method of the test fixture and injected into the CustomerController, 
+ * allowing tests to verify both the behavior of the controller and its interactions with the database layer.
  */
 public class MockCustomerDB extends CustomerDB {
     private Map<String, Customer> customers = new HashMap<>();
