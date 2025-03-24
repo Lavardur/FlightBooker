@@ -12,7 +12,7 @@ CREATE TABLE Flight (
 );
 
 CREATE TABLE Seat (
-    seatNumber INTEGER,
+    seatNumber VARCHAR(3),
     seatStatus BOOLEAN,
     flightNumber VARCHAR(5),
     PRIMARY KEY (seatNumber, flightNumber),
