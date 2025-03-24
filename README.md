@@ -7,6 +7,9 @@
 - **Valur Ingi Sigurðarson** (vis45@hi.is)
 - **Benedikt Arnar Davíðsson** (bad9@hi.is)
 
+### Forkröfur
+
+Maven og SQLite3 uppsett á tölvu með rétt path.
 
 ### Keyrsla
 
