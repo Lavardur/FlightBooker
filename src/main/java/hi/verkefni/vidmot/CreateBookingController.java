@@ -3,14 +3,16 @@ package hi.verkefni.vidmot;
 import hi.verkefni.vinnsla.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreateBookingController {
     private BookingController bookingController;
@@ -19,19 +21,13 @@ public class CreateBookingController {
     private boolean bookingCreated = false;
     
     @FXML
-    private ComboBox<String> originComboBox;
+    private Label customerNameLabel;
     
     @FXML
-    private ComboBox<String> destinationComboBox;
+    private Label selectedFlightLabel;
     
     @FXML
-    private DatePicker departureDatePicker;
-    
-    @FXML
-    private Button searchFlightsButton;
-    
-    @FXML
-    private ListView<Flight> flightsListView;
+    private Button selectFlightButton;
     
     @FXML
     private ListView<Seat> seatsListView;
@@ -41,6 +37,9 @@ public class CreateBookingController {
     
     @FXML
     private Button cancelButton;
+    
+    // The selected flight from the flight search view
+    private Flight selectedFlight;
     
     public CreateBookingController(BookingController bookingController, 
                                  FlightController flightController, 
@@ -52,95 +51,60 @@ public class CreateBookingController {
     
     @FXML
     public void initialize() {
-        // Populate origin and destination combo boxes
-        List<Flight> allFlights = flightController.getAllFlights();
-        List<String> origins = allFlights.stream()
-            .map(Flight::getOrigin)
-            .distinct()
-            .collect(Collectors.toList());
+        // Display customer information
+        customerNameLabel.setText(customer.getName());
         
-        List<String> destinations = allFlights.stream()
-            .map(Flight::getDestination)
-            .distinct()
-            .collect(Collectors.toList());
-        
-        originComboBox.setItems(FXCollections.observableArrayList(origins));
-        destinationComboBox.setItems(FXCollections.observableArrayList(destinations));
-        
-        // Set default date to today
-        departureDatePicker.setValue(LocalDate.now());
-        
-        // Setup flight list view
-        setupFlightsListView();
+        // Initialize as no flight selected yet
+        selectedFlightLabel.setText("No flight selected");
         
         // Setup seats list view
         setupSeatsListView();
         
-        // Add selection listeners
-        flightsListView.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    updateAvailableSeats(newSelection);
-                } else {
-                    seatsListView.getItems().clear();
-                }
-                updateBookButtonState();
-            });
-        
-        seatsListView.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> updateBookButtonState());
-        
         // Initial button states
-        updateBookButtonState();
+        updateButtonStates();
     }
     
     @FXML
-    private void handleSearchFlights() {
-        String origin = originComboBox.getValue();
-        String destination = destinationComboBox.getValue();
-        LocalDate departureDate = departureDatePicker.getValue();
-        
-        if (origin == null || destination == null || departureDate == null) {
-            showAlert(Alert.AlertType.WARNING, "Input Error", 
-                    "Please select origin, destination, and departure date");
-            return;
-        }
-        
-        // Convert LocalDate to LocalDateTime (start of day)
-        LocalDateTime departureDateTime = departureDate.atStartOfDay();
-        
-        // Search flights
-        List<Flight> flights = flightController.searchFlights(origin, destination, departureDateTime);
-        
-        if (flights.isEmpty()) {
-            showAlert(Alert.AlertType.INFORMATION, "No Flights", 
-                    "No flights found matching your criteria");
-        }
-        
-        flightsListView.setItems(FXCollections.observableArrayList(flights));
-        seatsListView.getItems().clear();
-        updateBookButtonState();
-    }
-    
-    private void setupFlightsListView() {
-        flightsListView.setCellFactory(param -> new ListCell<Flight>() {
-            @Override
-            protected void updateItem(Flight flight, boolean empty) {
-                super.updateItem(flight, empty);
+    private void handleSelectFlight() {
+        try {
+            // Open the flight search dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/flight-search-view.fxml"));
+            FlightSearchController controller = new FlightSearchController(flightController);
+            loader.setController(controller);
+            
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Search Flights");
+            stage.initModality(Modality.APPLICATION_MODAL); // Block interaction with parent window
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+            
+            // Get the selected flight
+            Flight flight = controller.getSelectedFlight();
+            
+            if (flight != null) {
+                // Update the selected flight
+                selectedFlight = flight;
                 
-                if (empty || flight == null) {
-                    setText(null);
-                } else {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                    setText(String.format("%s: %s to %s - Depart: %s - Arrive: %s", 
-                                      flight.getFlightNumber(),
-                                      flight.getOrigin(),
-                                      flight.getDestination(),
-                                      flight.getDepartureTime().format(formatter),
-                                      flight.getArrivalTime().format(formatter)));
-                }
+                // Update the UI
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                selectedFlightLabel.setText(String.format("%s: %s to %s - Depart: %s", 
+                    flight.getFlightNumber(),
+                    flight.getOrigin(),
+                    flight.getDestination(),
+                    flight.getDepartureTime().format(formatter)));
+                
+                // Load available seats for this flight
+                updateAvailableSeats();
+                
+                // Update button states
+                updateButtonStates();
             }
-        });
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open flight search dialog");
+        }
     }
     
     private void setupSeatsListView() {
@@ -156,21 +120,39 @@ public class CreateBookingController {
                 }
             }
         });
+        
+        // Add selection listener to update button states
+        seatsListView.getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldVal, newVal) -> updateButtonStates());
     }
     
-    private void updateAvailableSeats(Flight flight) {
-        List<Seat> availableSeats = bookingController.getAvailableSeats(flight.getFlightNumber());
-        seatsListView.setItems(FXCollections.observableArrayList(availableSeats));
+    private void updateAvailableSeats() {
+        if (selectedFlight != null) {
+            List<Seat> availableSeats = bookingController.getAvailableSeats(selectedFlight.getFlightNumber());
+            seatsListView.setItems(FXCollections.observableArrayList(availableSeats));
+            
+            if (availableSeats.isEmpty()) {
+                showAlert(Alert.AlertType.INFORMATION, "No Seats Available", 
+                        "There are no available seats on this flight");
+            }
+        } else {
+            seatsListView.getItems().clear();
+        }
     }
     
     @FXML
     private void handleBookButton() {
-        Flight selectedFlight = flightsListView.getSelectionModel().getSelectedItem();
         Seat selectedSeat = seatsListView.getSelectionModel().getSelectedItem();
         
-        if (selectedFlight == null || selectedSeat == null) {
-            showAlert(Alert.AlertType.WARNING, "Selection Required", 
-                    "Please select a flight and a seat");
+        if (selectedFlight == null) {
+            showAlert(Alert.AlertType.WARNING, "No Flight Selected", 
+                    "Please select a flight first");
+            return;
+        }
+        
+        if (selectedSeat == null) {
+            showAlert(Alert.AlertType.WARNING, "No Seat Selected", 
+                    "Please select a seat");
             return;
         }
         
@@ -197,11 +179,12 @@ public class CreateBookingController {
         stage.close();
     }
     
-    private void updateBookButtonState() {
-        boolean flightSelected = flightsListView.getSelectionModel().getSelectedItem() != null;
+    private void updateButtonStates() {
+        boolean flightSelected = selectedFlight != null;
         boolean seatSelected = seatsListView.getSelectionModel().getSelectedItem() != null;
         
         bookButton.setDisable(!(flightSelected && seatSelected));
+        seatsListView.setDisable(!flightSelected);
     }
     
     private void showAlert(Alert.AlertType type, String title, String content) {

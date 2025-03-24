@@ -10,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -48,6 +49,9 @@ public class FlightBookerApplication extends Application {
     
     @FXML
     private Button cancelBookingButton;
+    
+    @FXML
+    private Button searchFlightsButton;
     
     // Data
     private Customer currentCustomer;
@@ -198,6 +202,7 @@ public class FlightBookerApplication extends Application {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Create New Booking");
+            stage.initModality(Modality.APPLICATION_MODAL); // Block interaction with parent window
             stage.setScene(new Scene(root));
             stage.showAndWait();
             
@@ -277,6 +282,54 @@ public class FlightBookerApplication extends Application {
                         "Failed to cancel booking");
             }
         }
+    }
+    
+    @FXML
+    private void handleSearchFlights() {
+        try {
+            // Open the flight search dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/flight-search-view.fxml"));
+            FlightSearchController controller = new FlightSearchController(flightController);
+            loader.setController(controller);
+            
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Search Flights");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+            
+            // Get the selected flight if any
+            Flight selectedFlight = controller.getSelectedFlight();
+            
+            if (selectedFlight != null) {
+                // Do something with the selected flight
+                // For example, show flight details
+                showFlightDetails(selectedFlight);
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open flight search dialog");
+        }
+    }
+
+    private void showFlightDetails(Flight flight) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Flight Details");
+        alert.setHeaderText("Flight " + flight.getFlightNumber());
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        
+        String content = String.format(
+            "From: %s\nTo: %s\nDeparture: %s\nArrival: %s",
+            flight.getOrigin(),
+            flight.getDestination(),
+            flight.getDepartureTime().format(formatter),
+            flight.getArrivalTime().format(formatter)
+        );
+        
+        alert.setContentText(content);
+        alert.showAndWait();
     }
     
     private void refreshBookingsList() {
