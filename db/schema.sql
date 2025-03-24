@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS Booking;
 DROP TABLE IF EXISTS Seat;
+DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS Flight;
 
 CREATE TABLE Flight (
@@ -9,6 +9,13 @@ CREATE TABLE Flight (
     destination VARCHAR(50),
     departureTime VARCHAR(20),
     arrivalTime VARCHAR(20)
+);
+
+CREATE TABLE Customer (
+    customerId VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phoneNumber VARCHAR(7)
 );
 
 CREATE TABLE Seat (
@@ -24,12 +31,9 @@ CREATE TABLE Booking (
     bookingDate VARCHAR(20),
     status VARCHAR(20),
     customerId VARCHAR(10),
-    FOREIGN KEY (customerId) REFERENCES Customer(customerId)
-);
-
-CREATE TABLE Customer (
-    customerId VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    phoneNumber VARCHAR(7)
+    flightNumber VARCHAR(5),
+    seatNumber VARCHAR(3),
+    FOREIGN KEY (customerId) REFERENCES Customer(customerId),
+    FOREIGN KEY (flightNumber) REFERENCES Flight(flightNumber),
+    FOREIGN KEY (flightNumber, seatNumber) REFERENCES Seat(flightNumber, seatNumber)
 );

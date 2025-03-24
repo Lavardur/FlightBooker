@@ -174,8 +174,13 @@ VALUES
 ('D9', 0, 'FI104'),
 ('D10', 0, 'FI104');
 
-INSERT INTO Booking (bookingId, bookingDate, status, customerId)
+INSERT INTO Booking (bookingId, bookingDate, status, customerId, flightNumber, seatNumber)
 VALUES
-('B101', '2020-10-01 12:00:00', 'CONFIRMED', '2404012070'),
-('B102', '2020-10-02 12:00:00', 'CONFIRMED', '2404012071'),
-('B103', '2020-10-03 12:00:00', 'CONFIRMED', '2404012072');
+('B101', '2020-10-01 12:00:00', 'CONFIRMED', '2404012070', 'FI101', 'A1'),
+('B102', '2020-10-02 12:00:00', 'CONFIRMED', '2404012071', 'FI101', 'A2'),
+('B103', '2020-10-03 12:00:00', 'CONFIRMED', '2404012072', 'FI102', 'A1');
+
+-- Update corresponding seats to reflect they are booked
+UPDATE Seat SET seatStatus = 1 WHERE flightNumber = 'FI101' AND seatNumber = 'A1';
+UPDATE Seat SET seatStatus = 1 WHERE flightNumber = 'FI101' AND seatNumber = 'A2';
+UPDATE Seat SET seatStatus = 1 WHERE flightNumber = 'FI102' AND seatNumber = 'A1';
