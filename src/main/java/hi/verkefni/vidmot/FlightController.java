@@ -1,16 +1,26 @@
 package hi.verkefni.vidmot;
-// FlightController
-// + searchFlights(origin: String,
-//		destination: String,
-//		date: DateTime): List<Flight>
-//
-// + getFlightDetails(flightId: String): Flight
 
-// FlightDB
-// + selectById(flightId: String): Flight
-// + selectAll(): List<Flight>
-// + insert(flight: Flight): void
-// + update(flight: Flight): void
-// + delete(flight: String): void
+import hi.verkefni.vinnsla.Flight;
+import hi.verkefni.vinnsla.FlightDB;
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class FlightController {
+    private FlightDB flightDB;
+    
+    public FlightController(FlightDB flightDB) {
+        this.flightDB = flightDB;
+    }
+    
+    public Flight getFlightByNumber(String flightNumber) {
+        return flightDB.selectByFlightNumber(flightNumber);
+    }
+    
+    public List<Flight> searchFlights(String origin, String destination, LocalDateTime date) {
+        return flightDB.searchFlights(origin, destination, date);
+    }
+    
+    public List<Flight> getAllFlights() {
+        return flightDB.getAllFlights();
+    }
 }

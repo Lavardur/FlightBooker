@@ -1,5 +1,6 @@
 package hi.verkefni.vidmot;
 
+import hi.verkefni.vinnsla.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,6 +8,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class FlightBookerApplication extends Application {
+
+    public FlightBookerApplication() {
+        // Initialize database with schema and test data
+        DatabaseInitializer.initialize();
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
