@@ -13,6 +13,13 @@ public class DatabaseInitializer {
     private static final String DB_URL = "jdbc:sqlite:flightbooker.db";
     
     public static void initialize() {
+        // Delete existing database file if it exists
+        File dbFile = new File("flightbooker.db");
+        if (dbFile.exists()) {
+            System.out.println("Deleting existing database file...");
+            dbFile.delete();
+        }
+        
         createTables();
         loadTestData();
     }
@@ -44,15 +51,20 @@ public class DatabaseInitializer {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                
                 // Skip comment lines and empty lines
-                if (line.trim().startsWith("//") || line.trim().startsWith("/*") || line.trim().isEmpty()) {
+                if (line.startsWith("//") || line.startsWith("--") || line.startsWith("/*") || line.isEmpty()) {
                     continue;
                 }
-                sql.append(line);
+                
+                sql.append(line).append(" ");
                 
                 // Execute when we reach the end of a statement
-                if (line.trim().endsWith(";")) {
-                    executeSQL(sql.toString());
+                if (line.endsWith(";")) {
+                    String sqlStatement = sql.toString().trim();
+                    System.out.println("Executing SQL: " + sqlStatement);
+                    executeSQL(sqlStatement);
                     sql.setLength(0);
                 }
             }
@@ -63,6 +75,9 @@ public class DatabaseInitializer {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("SQL Error executing: " + sql);
+            throw e;
         }
     }
     

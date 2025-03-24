@@ -1,66 +1,35 @@
-/*
-
-SQLITE3 - Original Schema
-
-Flight
-- flightNumber:    String
-- origin:    String
-- destination:    String
-- departureTime:    DateTime
-- arrivalTime:    DateTime
-- seats:    List<Seat>
-
-Seat
-- seatNumber:    Int
-- seatStatus:    SeatStatus
-- flight: Flight
-
-Booking
-- bookingId: String
-- bookingDate: DateTime
-- status: BookingStatus
-- customer: Customer
-- seatList: List<seat>
-
-Customer
-- customerId: String
-- name: String
-- email: String
-- phoneNumber: String
-
-*/
-
 DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS Booking;
 DROP TABLE IF EXISTS Seat;
 DROP TABLE IF EXISTS Flight;
 
 CREATE TABLE Flight (
-    flightNumber TEXT PRIMARY KEY,
-    origin TEXT,
-    destination TEXT,
-    departureTime TEXT,
-    arrivalTime TEXT
+    flightNumber VARCHAR(5) PRIMARY KEY,
+    origin VARCHAR(50),
+    destination VARCHAR(50),
+    departureTime VARCHAR(20),
+    arrivalTime VARCHAR(20)
 );
 
 CREATE TABLE Seat (
-    seatNumber INTEGER PRIMARY KEY,
+    seatNumber INTEGER,
     seatStatus BOOLEAN,
-    flightNumber TEXT,
+    flightNumber VARCHAR(5),
+    PRIMARY KEY (seatNumber, flightNumber),
     FOREIGN KEY (flightNumber) REFERENCES Flight(flightNumber)
 );
 
 CREATE TABLE Booking (
-    bookingId TEXT PRIMARY KEY,
-    bookingDate TEXT,
-    status TEXT,
-    customerId TEXT,
+    bookingId VARCHAR(10) PRIMARY KEY,
+    bookingDate VARCHAR(20),
+    status VARCHAR(20),
+    customerId VARCHAR(10),
     FOREIGN KEY (customerId) REFERENCES Customer(customerId)
 );
 
 CREATE TABLE Customer (
-    customerId TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phoneNumber TEXT
+    customerId VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phoneNumber VARCHAR(7)
 );
