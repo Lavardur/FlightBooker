@@ -7,3 +7,15 @@
 - **Valur Ingi Sigurðarson** (vis45@hi.is)
 - **Benedikt Arnar Davíðsson** (bad9@hi.is)
 
+
+### Keyrsla
+
+```
+mvn clean javafx:run
+```
+
+### Tests
+
+```
+mvn clean test
+```

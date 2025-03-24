@@ -3,20 +3,20 @@
 ### testRegisterCustomer
 
 - **Rationale:** Tests the core functionality of adding a new customer to the system.
-- **Inputs:** A new customer with standard attributes (ID, username, email).
-- **Expected Results:** Customer successfully stored, method call tracked, and correct data returned.
+- **Inputs:** A new customer with complete attributes (customer ID, name, email, phone number).
+- **Expected Results:** Customer successfully stored, method call tracked, and correct data returned with all fields verified.
 
 ### testUpdateCustomer
 
 - **Rationale:** Tests the ability to modify existing customer information.
-- **Inputs:** First a new customer, then an updated version with modified email.
-- **Expected Results:** Verification that update was called, data changed, and retrieving the updated record shows changes.
+- **Inputs:** First a new customer, then an updated version with modified email and phone number.
+- **Expected Results:** Verification that update was called, multiple fields changed correctly, and retrieving the updated record shows all changes.
 
 ### testGetCustomer
 
 - **Rationale:** Tests retrieval of an existing customer.
 - **Inputs:** Customer ID of a previously registered customer.
-- **Expected Results:** Correct customer retrieved and method call tracked.
+- **Expected Results:** Correct customer retrieved with all fields matching and method call tracked.
 
 ### testGetCustomerNotFound
 
@@ -42,6 +42,7 @@
 
 - **Verification of behavior:**
     - Each test validates both the functionality and the interaction pattern with dependencies.
+    - Tests verify all fields of the Customer model are handled correctly.
 
 <div style="page-break-after: always;"></div>
 
@@ -69,44 +70,49 @@ public class CustomerControllerTest {
     
     @Test
     public void testRegisterCustomer() {
-        Customer customer = new Customer("C001", "johndoe", "john@example.com");
+        Customer customer = new Customer("2404012073", "John Doe", "john@example.com", "5551234");
         
         Customer result = controller.registerCustomer(customer);
         
         assertEquals(1, mockDB.getInsertCalls(), "Insert method should be called once");
         assertEquals(1, mockDB.getCustomerCount(), "One customer should be in the mock database");
-        assertEquals("johndoe", result.getUsername(), "Username should match");
+        assertEquals("John Doe", result.getName(), "Name should match");
         assertEquals("john@example.com", result.getEmail(), "Email should match");
+        assertEquals("5551234", result.getPhoneNumber(), "Phone number should match");
     }
     
     @Test
     public void testUpdateCustomer() {
-        Customer customer = new Customer("C001", "johndoe", "john@example.com");
+        Customer customer = new Customer("2404012073", "John Doe", "john@example.com", "5551234");
         controller.registerCustomer(customer);
         
         customer.setEmail("john.doe@updated.com");
+        customer.setPhoneNumber("5559876");
         Customer updatedCustomer = controller.updateCustomer(customer);
         
         assertEquals(1, mockDB.getUpdateCalls(), "Update method should be called once");
         assertEquals("john.doe@updated.com", updatedCustomer.getEmail(), "Email should be updated");
+        assertEquals("5559876", updatedCustomer.getPhoneNumber(), "Phone number should be updated");
         
-        Customer retrievedCustomer = controller.getCustomer("C001");
+        Customer retrievedCustomer = controller.getCustomer("2404012073");
         assertEquals("john.doe@updated.com", retrievedCustomer.getEmail(), "Retrieved customer should have updated email");
+        assertEquals("5559876", retrievedCustomer.getPhoneNumber(), "Retrieved customer should have updated phone");
     }
     
     @Test
     public void testGetCustomer() {
-        Customer customer = new Customer("C001", "johndoe", "john@example.com");
+        Customer customer = new Customer("2404012073", "John Doe", "john@example.com", "5551234");
         controller.registerCustomer(customer);
         
         mockDB.reset();
         mockDB.insert(customer);
         
-        Customer result = controller.getCustomer("C001");
+        Customer result = controller.getCustomer("2404012073");
         
         assertEquals(1, mockDB.getSelectCalls(), "Select method should be called once");
         assertNotNull(result, "Customer should be found");
-        assertEquals("johndoe", result.getUsername(), "Username should match");
+        assertEquals("John Doe", result.getName(), "Name should match");
+        assertEquals("5551234", result.getPhoneNumber(), "Phone number should match");
     }
     
     @Test
@@ -153,21 +159,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * # Mock Object Documentation: MockCustomerDB
- *
- * ## Purpose
- * The MockCustomerDB class serves as a test double that simulates a database component without requiring an actual database connection. 
- * It implements the same interface as the real CustomerDB but stores data in memory and tracks method invocations for verification in tests.
- *
- * ## Implementation Details
- * - Extends CustomerDB to maintain the same interface
- * - Uses a HashMap to store customer data in memory
- * - Maintains counters to track how many times each database operation is called
- * - Provides additional methods for test verification (getInsertCalls, reset, etc.)
- *
- * ## Usage in Test Fixture
- * The MockCustomerDB is initialized in the @BeforeEach method of the test fixture and injected into the CustomerController, 
- * allowing tests to verify both the behavior of the controller and its interactions with the database layer.
+ * Mock implementation of CustomerDB for testing purposes.
+ * This class simulates database operations without requiring an actual database.
  */
 public class MockCustomerDB extends CustomerDB {
     private Map<String, Customer> customers = new HashMap<>();
@@ -241,13 +234,15 @@ package hi.verkefni.vinnsla;
 
 public class Customer {
     private String customerId;
-    private String username;
+    private String name;
     private String email;
+    private String phoneNumber;
 
-    public Customer(String customerId, String username, String email) {
+    public Customer(String customerId, String name, String email, String phoneNumber) {
         this.customerId = customerId;
-        this.username = username;
+        this.name = name;
         this.email = email;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getCustomerId() {
@@ -258,12 +253,12 @@ public class Customer {
         this.customerId = customerId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -272,6 +267,14 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
 ```
