@@ -57,8 +57,18 @@ public class MockCustomerDB extends CustomerDB {
         return deleteCalls;
     }
     
+    /**
+     * Reset everything - both data and call counters
+     */
     public void reset() {
         customers.clear();
+        resetCallCounters();
+    }
+    
+    /**
+     * Reset only the call counters, preserving data
+     */
+    public void resetCallCounters() {
         insertCalls = 0;
         updateCalls = 0;
         selectCalls = 0;

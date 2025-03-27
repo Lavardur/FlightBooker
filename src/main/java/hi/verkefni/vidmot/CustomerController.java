@@ -4,8 +4,8 @@ import hi.verkefni.vinnsla.Customer;
 import hi.verkefni.vinnsla.CustomerDB;
 
 // CustomerController
-// + registerCustomer(customer: Customer) : Customer
-// + updateCustomer(customer: Customer) : Customer
+// + registerCustomer(customer: Customer) : void
+// + updateCustomer(customer: Customer) : void
 // + getCustomer(customerId: String) : Customer
 
 // CustomerDB
@@ -21,16 +21,30 @@ public class CustomerController {
         this.customerDB = customerDB;
     }
     
-    public Customer registerCustomer(Customer customer) {
+    /**
+     * Register a new customer in the system
+     * 
+     * @param customer The customer to register
+     */
+    public void registerCustomer(Customer customer) {
         customerDB.insert(customer);
-        return customer;
     }
     
-    public Customer updateCustomer(Customer customer) {
+    /**
+     * Update an existing customer's information
+     * 
+     * @param customer The customer with updated information
+     */
+    public void updateCustomer(Customer customer) {
         customerDB.update(customer);
-        return customer;
     }
     
+    /**
+     * Get a customer by their ID
+     * 
+     * @param customerId The ID of the customer to retrieve
+     * @return The customer if found, null otherwise
+     */
     public Customer getCustomer(String customerId) {
         return customerDB.selectById(customerId);
     }
